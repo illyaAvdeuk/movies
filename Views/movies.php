@@ -17,9 +17,10 @@
                     <thead>
                     <tr>
                         <th scope="col">#</th>
-                        <th scope="col">First</th>
-                        <th scope="col">Last</th>
-                        <th scope="col">Handle</th>
+                        <th scope="col">Title</th>
+                        <th scope="col">Year</th>
+                        <th scope="col">Format</th>
+                        <th scope="col">Actors</th>
                     </tr>
                     </thead>
                     <tbody>
