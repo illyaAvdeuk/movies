@@ -1,7 +1,47 @@
-<h2>Movies</h2>
-
-<div class="main-page">
-    <p>Добро пожаловать на главную страницу нашего первого
-        <strong>MVC</strong> фреймворка</p>
-    <a href="/home/news">Новости портала</a>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="/resources/css/bootstrap.min.css">
+    <title></title>
+</head>
+<body>
+<main id="content" role="main">
+<div class="container">
+    <div class="row">
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">First</th>
+                <th scope="col">Last</th>
+                <th scope="col">Handle</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <th scope="row">1</th>
+                <td>Mark</td>
+                <td>Otto</td>
+                <td>@mdo</td>
+            </tr>
+            <tr>
+                <th scope="row">2</th>
+                <td>Jacob</td>
+                <td>Thornton</td>
+                <td>@fat</td>
+            </tr>
+            <tr>
+                <th scope="row">3</th>
+                <td colspan="2">Larry the Bird</td>
+                <td>@twitter</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
+</main>
+</body>
+</html>
+
+
+

@@ -1,3 +1,5 @@
+<link href="/resources/css/bootstrap.min.css">
+
 <h2>Главная страница</h2>
 
 <div class="main-page">
