@@ -17,14 +17,21 @@ class App
      */
     public static function run()
     {
+
         // Получаем URL запроса
         $path = $_SERVER['REQUEST_URI'];
+        // получаем path без $_GET параметров
+        $url_components = parse_url($path);
+
         // Разбиваем URL на части
-        $pathParts = explode('/', $path);
+        $pathParts = explode('/', $url_components['path']);
         // Получаем имя контроллера
         $controller = $pathParts[1];
         // Получаем имя действия
         $action = $pathParts[2];
+        // айди для action, если он нужен
+        $id = $pathParts[3];
+
         // Формируем пространство имен для контроллера
         $controller = 'Controllers\\' . $controller . 'Controller';
         // Формируем наименование действия
@@ -44,7 +51,7 @@ class App
         }
 
          // Вызываем действие контроллера
-         $objController->$action();
+         $objController->$action($id);
     }
 }
 

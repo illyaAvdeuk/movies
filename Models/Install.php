@@ -11,6 +11,8 @@ class Install extends BaseModel
 {
     /**
      * create all tables for application
+     *
+     * @return string
      */
     public function createTables()
     {
@@ -31,25 +33,33 @@ class Install extends BaseModel
              CREATE TABLE IF NOT EXISTS actors_movies(
                 movie_id INT( 11 ) NOT NULL,
                 actor_id INT( 11 ) NOT NULL,
-                CONSTRAINT fk_movie_a FOREIGN KEY (movie_id)
-                    REFERENCES movies(id),
-                CONSTRAINT fk_actor FOREIGN KEY (actor_id)
+                CONSTRAINT fk_movie_a 
+                    FOREIGN KEY (movie_id)
+                    REFERENCES movies(id)
+                    ON DELETE CASCADE,
+                CONSTRAINT fk_actor 
+                    FOREIGN KEY (actor_id)
                     REFERENCES actors(id)
+                    ON DELETE CASCADE                                  
              );
              
              CREATE TABLE IF NOT EXISTS movies_standards(
                 movie_id INT( 11 ) NOT NULL,
                 standard_id INT( 11 ) NOT NULL,
-                CONSTRAINT fk_movie_s FOREIGN KEY (movie_id)
-                    REFERENCES movies(id),
-                CONSTRAINT fk_standard FOREIGN KEY (standard_id)
+                CONSTRAINT fk_movie_s 
+                    FOREIGN KEY (movie_id)
+                    REFERENCES movies(id)
+                    ON DELETE CASCADE,
+                CONSTRAINT fk_standard 
+                    FOREIGN KEY (standard_id)
                     REFERENCES standards(id)
+                    ON DELETE CASCADE                                     
              );";
 
         try {
             $this->pdo->exec($sql);
         } catch(PDOException $e) {
-            echo $e->getMessage();
+            return $e->getMessage();
         }
     }
 }

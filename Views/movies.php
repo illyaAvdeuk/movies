@@ -1,17 +1,38 @@
 <?php require 'template-parts/header.php'; ?>
-<body>
-<div id="wrapper">
-    <div class="overlay"></div>
-    <?php require 'template-parts/sidebar.php'; ?>
 
-    <!-- Page Content -->
-    <div id="page-content-wrapper">
-        <button type="button" class="hamburger animated fadeInLeft is-closed" data-toggle="offcanvas">
-            <span class="hamb-top"></span>
-            <span class="hamb-middle"></span>
-            <span class="hamb-bottom"></span>
-        </button>
+    <style>
+        /*.container{*/
+        /*    margin-top:30px;*/
+        /*}*/
+
+        .filter-col{
+            padding-left:10px;
+            padding-right:10px;
+        }
+    </style>
+
         <div class="container">
+
+
+        <div class="form-group">
+            <label class="filter-col" style="margin-right:0;" for="pref-search">Search:</label>
+            <input
+                    type="text"
+                    class="form-control input-sm"
+                    id="pref-search"
+                    placeholder="press ENTER to search"
+                    value="<?= $_GET['search'] ?>"
+            >
+        </div><!-- form group [search] -->
+        <div class="form-group">
+            <label class="filter-col" style="margin-right:0;" for="pref-orderby">Order by:</label>
+            <select id="pref-orderby" class="form-control">
+                <option value="title_asc" <?= $_GET['sort'] === 'asc' ? 'selected' : '' ?>>Movie title (ASC)</option>
+                <option value="title_desc" <?= $_GET['sort'] === 'desc' ? 'selected' : '' ?>>Movie title (DESC)</option>
+            </select>
+        </div> <!-- form group [order by] -->
+
+
             <div class="row">
                 <table class="table table-bordered">
                     <thead>
@@ -21,56 +42,29 @@
                         <th scope="col">Year</th>
                         <th scope="col">Format</th>
                         <th scope="col">Actors</th>
+                        <th scope="col"></th>
+                        <th scope="col"></th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr>
-                        <th scope="row">1</th>
-                        <td>Mark</td>
-                        <td>Otto</td>
-                        <td>@mdo</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">2</th>
-                        <td>Jacob</td>
-                        <td>Thornton</td>
-                        <td>@fat</td>
-                    </tr>
+                    <?php if(!empty($data)): ?>
+                        <?php foreach($data as $key => $movie): ?>
+                            <tr>
+                                <th scope="row"><?= $key + 1 ?></th>
+                                <td><?= $movie['title'] ?></td>
+                                <td><?= $movie['release_date'] ?></td>
+                                <td><?= $movie['format'] ?></td>
+                                <td><?= $movie['actors'] ?></td>
+                                <td>
+                                    <a href="/movies/show/<?= $movie['id'] ?>">
+                                        <button type="button" class="btn btn-primary">Show</button>
+                                    </a>
+                                </td>
+                                <td><button type="button" class="btn btn-danger">Delete</button></td>
+
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                     </tbody>
                 </table>
-
-                <table data-toggle="table">
-                    <thead>
-                    <tr>
-                        <th>Item ID</th>
-                        <th>Item Name</th>
-                        <th>Item Price</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>Item 1</td>
-                        <td>$1</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>Item 2</td>
-                        <td>$2</td>
-                    </tr>
-                    </tbody>
-                </table>
-
-            </div>
-        </div>
-    </div>
-    <!-- /#page-content-wrapper -->
-
-</div>
-<!-- /#wrapper -->
 <?php require_once 'template-parts/footer.php';?>
-</body>
-</html>
-
-
-

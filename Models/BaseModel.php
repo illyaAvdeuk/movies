@@ -12,8 +12,6 @@ class BaseModel
 {
     protected PDO $pdo;
 
-    protected string $table;
-
     /**
      * BaseModel constructor.
      */
