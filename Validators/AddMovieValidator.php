@@ -37,12 +37,12 @@ class AddMovieValidator extends Validator
             return sprintf('%s already exists in database for year %s', $data['title'], $data['release_date']);
         }
 
-        if (isset($data['actors'])) {
-            return $this->checkString($data['actors'], 'Actors list');
+        if (isset($data['actors']) && is_string($error = $this->checkString($data['actors'], 'Actors list'))) {
+            return $error;
         }
 
-        if (isset($data['format'])) {
-            return $this->checkString($data['format'], 'Format');
+        if (isset($data['format']) && is_string($error = $this->checkString($data['format'], 'Format'))) {
+            return $error;
         }
         return true;
     }

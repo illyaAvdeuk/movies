@@ -1,9 +1,6 @@
 <?php
 namespace Models;
 
-use Exception;
-use PDO;
-
 /**
  * Class Movies
  * @package Models
@@ -16,45 +13,40 @@ class Movies extends BaseModel
      */
     public function addMovie($data)
     {
-        try {
-            $this->pdo->beginTransaction();
+        $sql = "INSERT INTO movies (title, release_date) VALUES (?, ?)";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$data['title'], $data['release_date']]);
+        $movieId = (int)$this->pdo->lastInsertId();
 
-            $sql = "INSERT INTO movies (title, release_date) VALUES (?, ?)";
-            $stmt = $this->pdo->prepare($sql);
-            $stmt->execute([$data['title'], $data['release_date']]);
-            $movieId = $this->pdo->lastInsertId();
-
-            if (isset($data['actors']) && !empty($data['actors'])) {
-                $actorsList = explode(',', $data['actors']);
-
-                foreach ($actorsList as $actor) {
-                    $actorN = new Actors();
-                    $actorN->addActor($actor, $movieId);
-                }
-
-
-
-//                $actors = new Actors();
-//                if (is_string($error = $actors->addActors($actorsList, $movieId))){
-//                    return $error;
-//                }
-
+        if (isset($data['actors']) && !empty($data['actors'])) {
+            $actorsList = explode(',', $data['actors']);
+            $actors = new Actors();
+            if (is_string($error = $actors->addActors($actorsList, $movieId))) {
+                return $error;
             }
+        }
 
-//            if (isset($data['format'])) {
-//                $format = new Format();
-//                if (!$format->formatExists($data['format'])) {
-//                    $format->addFormat($data['format'], [$movieId]);
-//                }
-//            }
-
-            $this->pdo->commit();
-
-        } catch(Exception $e) {
-            $this->pdo->rollBack();
-            return $e->getMessage();
+        if (isset($data['format'])) {
+            $format = new Format();
+            if (is_string($formatId = $format->formatExists($data['format']))) {
+                $format->addMoviesToFormat([$movieId],$formatId);
+            } else {
+                $format->addFormat($data['format'], [$movieId]);
+            }
         }
         return true;
+    }
+
+    /**
+     * @param array $movies
+     */
+    public function addMovies(array $movies)
+    {
+        if (!empty($movies)) {
+            foreach($movies as $movie) {
+                $this->addMovie($movie);
+            }
+        }
     }
 
     /**
@@ -83,14 +75,14 @@ class Movies extends BaseModel
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $stmt->fetchAll($this->pdo::FETCH_ASSOC);
     }
 
     /**
      * get single movie
      *
      * @param int $id
-     * @return array
+     * @return array|boolean
      */
     public function getMovie(int $id)
     {
@@ -107,7 +99,12 @@ class Movies extends BaseModel
         $stmt->bindParam(':id', $id);
         $stmt->execute();
 
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $result = $stmt->fetch($this->pdo::FETCH_ASSOC);
+
+        if (is_array($result)) {
+            return $result;
+        }
+        return false;
     }
 
     /**
@@ -138,11 +135,11 @@ class Movies extends BaseModel
         $sql = 'SELECT id FROM movies WHERE title = :title AND release_date = :release_date';
 
         $stmt = $this->pdo->prepare($sql);
-        $stmt->bindParam(':title', $title, PDO::PARAM_STR);
+        $stmt->bindParam(':title', $title, $this->pdo::PARAM_STR);
         $stmt->bindParam(':release_date', $release_date);
         $stmt->execute();
 
-        if(is_array($stmt->fetch(PDO::FETCH_ASSOC))){
+        if(is_array($stmt->fetch($this->pdo::FETCH_ASSOC))){
             return true;
         }
         return false;

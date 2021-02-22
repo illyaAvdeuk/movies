@@ -2,7 +2,9 @@
 namespace Controllers;
 
 use ErrorException;
+use Models\DocxConverter;
 use Models\Movies;
+use PhpOffice\PhpWord\IOFactory;
 use System\View;
 use Validators\AddMovieValidator;
 
@@ -92,6 +94,72 @@ class moviesController extends BaseController
                 $this->redirect301('/movies/list');
             }
         }
+    }
+
+    /**
+     * show view for uploads page
+     * @throws ErrorException
+     */
+    public function actionUpload()
+    {
+        $source = "/home/developer/Test/Controllers/tz.docx";
+
+        $objReader = IOFactory::createReader('Word2007');
+
+        $phpWord = $objReader->load($source);
+
+        $arrays = [];
+        $data = [];
+        foreach($phpWord->getSections() as $section) {
+            $arrays = $section->getElements();
+            $text = '';
+            foreach ($arrays as $e) {
+                if (get_class($e) === 'PhpOffice\PhpWord\Element\TextRun') {
+                    foreach ($e->getElements() as $text) {
+                        if (!empty($text->getText())) {
+                            $data[] = $text->getText();
+//                            $text .= $text->getText();
+                        }
+                    }
+                }
+            }
+
+            $text = implode(' ',$data);
+            $text = str_replace([' :',' ,','  '], [':',',',' '], $text);
+            $text = str_replace(['Title', 'Release  Year', 'Format', 'Stars'], ['|Title', ':Release Year', ':Format', ':Stars'], $text);
+
+
+            $data = array_filter(explode('|', $text));
+            foreach ($data as &$string) {
+                $string = array_filter(explode(':', $string));
+            }
+
+            $parsedMovies = [];
+            foreach ($data as $movieOrder => $movie) {
+                foreach ($movie as $index => $movieElement ) {
+                    if ($movieElement === 'Title') {
+                        $parsedMovies[$movieOrder]['title'] = htmlspecialchars_decode((trim($movie[$index+1])), ENT_QUOTES);
+                        unset($movie[$index+1]);
+                    } elseif ($movieElement === 'Release Year') {
+                        $parsedMovies[$movieOrder]['release_date'] = trim($movie[$index+1]);
+                        unset($movie[$index+1]);
+                    } elseif ($movieElement === 'Format') {
+                        $parsedMovies[$movieOrder]['format'] = trim($movie[$index+1]);
+                        unset($movie[$index+1]);
+                    } elseif ($movieElement === 'Stars') {
+                        $parsedMovies[$movieOrder]['actors'] = strip_tags(str_replace([', ', '  '],[',', ' '],trim($movie[$index+1])));
+                        unset($movie[$index+1]);
+                    }
+                }
+            }
+
+            if (!empty($parsedMovies)) {
+                $movies = new Movies();
+                $movies->addMovies($parsedMovies);
+            }
+
+        }
+        View::render('uploads', ['text' => $parsedMovies]);
     }
 
 }

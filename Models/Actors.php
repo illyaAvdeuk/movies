@@ -1,9 +1,6 @@
 <?php
 namespace Models;
 
-use Exception;
-use PDO;
-
 /**
  * Class Actors
  * @package Models
@@ -12,7 +9,7 @@ class Actors extends BaseModel
 {
     /**
      * @param string $fullName
-     * @param int $movieId
+     * @param $movieId
      * @return string
      */
     public function addActor(string $fullName, int $movieId)
@@ -21,12 +18,11 @@ class Actors extends BaseModel
         $sql = "INSERT INTO actors (fullName) VALUES (?)";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([$fullName]);
-        $actorId = $this->pdo->lastInsertId();
-//        $this->addMovieToActor($movieId, $actorId);
-        $sql2 = "INSERT INTO actors_movies (movie_id, actor_id) VALUES (?, ?)";
-        $stmt2 = $this->pdo->prepare($sql2)->execute([$movieId, $actorId]);
-//        $stmt2;
-
+        $actorId = (int)$this->pdo->lastInsertId();
+        /** union movies with actor */
+        if ($movieId) {
+            $this->addMovieToActor($movieId, $actorId);
+        }
     }
 
     /**
@@ -36,27 +32,22 @@ class Actors extends BaseModel
      */
     public function addActors(array $actors, int $movieId)
     {
-
-
         if (!empty($actors)) {
-
             foreach ($actors as $actor) {
-
-//                if ($this->actorExists($actor)) {
-//                    continue;
-//                }
-                if (is_string($error = $this->addActor($actor, $movieId))) {
-                    return $error;
+                if ($actorId = $this->actorExists($actor)) {
+                    $this->addMovieToActor($movieId, (int)$actorId);
+                    continue;
                 }
+                $this->addActor($actor, $movieId);
             }
         }
     }
 
     /**
      * @param string $fullName
-     * @return bool
+     * @return bool|string
      */
-    private function actorExists(string $fullName) : bool
+    private function actorExists(string $fullName)
     {
         $sql = 'SELECT id FROM actors WHERE fullName = :fullName';
 
@@ -64,15 +55,15 @@ class Actors extends BaseModel
         $stmt->bindParam(':fullName', $fullName);
         $stmt->execute();
 
-        if($stmt->fetch(PDO::FETCH_ASSOC)){
-            return true;
+        if(is_array($actor = $stmt->fetch($this->pdo::FETCH_ASSOC))){
+            return $actor['id'];
         }
         return false;
     }
+
     /**
      * @param int $movieId
      * @param int $actorId
-     * @return string
      */
     public function addMovieToActor(int $movieId, int $actorId)
     {

@@ -5,6 +5,7 @@ use System\App;
 
 require_once __DIR__ . '/System/autoload.php';
 require_once __DIR__ . '/System/config.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
 try {
     App::run();
