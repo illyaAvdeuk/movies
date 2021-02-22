@@ -4,6 +4,7 @@ namespace Controllers;
 use ErrorException;
 use Models\Movies;
 use System\View;
+use Validators\AddMovieValidator;
 
 /**
  * Class moviesController
@@ -55,21 +56,42 @@ class moviesController extends BaseController
         }
     }
 
-    /**
-     * @param int $id
-     * @throws ErrorException
-     */
-    public function actionDelete(int $id)
+    public function actionDelete()
     {
-        if ($this->model->deleteMovie($id)) {
-            View::render('movies', $this->model->getMovies());
+        if (!isset($_POST['id'])) {
+            $this->setJSON('error', 'ID not set');
         }
-        View::render('movies', ['message' => "An error occurred while deleting a movie with ID {$id}"]);
+
+        if ($this->model->deleteMovie($_POST['id'])) {
+            $this->setJSON('success', true);
+        }
     }
 
+    /**
+     * @throws ErrorException
+     */
     public function actionAdd()
     {
+        View::render('add');
+    }
 
+    /**
+     * save single movie
+     */
+    public function actionSave()
+    {
+        $validator = new AddMovieValidator();
+
+        if (is_string($error = $validator->validate($_POST))) {
+            $this->setJSON('error', $error);
+        } else {
+            if (is_string($error = $this->model->addMovie($_POST))) {
+                $this->setJSON('error', $error);
+            }
+            else {
+                $this->redirect301('/movies/list');
+            }
+        }
     }
 
 }

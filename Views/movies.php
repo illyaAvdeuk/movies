@@ -1,38 +1,25 @@
 <?php require 'template-parts/header.php'; ?>
-
-    <style>
-        /*.container{*/
-        /*    margin-top:30px;*/
-        /*}*/
-
-        .filter-col{
-            padding-left:10px;
-            padding-right:10px;
-        }
-    </style>
-
         <div class="container">
-
-
+            <div class="alert alert-danger" role="alert" id="error-message" style="display: none">
+                <?= $errorMessage ?? '' ?>
+            </div>
         <div class="form-group">
             <label class="filter-col" style="margin-right:0;" for="pref-search">Search:</label>
             <input
                     type="text"
                     class="form-control input-sm"
                     id="pref-search"
-                    placeholder="press ENTER to search"
-                    value="<?= $_GET['search'] ?>"
+                    placeholder="type and press ENTER to search"
+                    value="<?= $_GET['search'] ?? '' ?>"
             >
-        </div><!-- form group [search] -->
+        </div>
         <div class="form-group">
-            <label class="filter-col" style="margin-right:0;" for="pref-orderby">Order by:</label>
-            <select id="pref-orderby" class="form-control">
-                <option value="title_asc" <?= $_GET['sort'] === 'asc' ? 'selected' : '' ?>>Movie title (ASC)</option>
-                <option value="title_desc" <?= $_GET['sort'] === 'desc' ? 'selected' : '' ?>>Movie title (DESC)</option>
-            </select>
-        </div> <!-- form group [order by] -->
-
-
+                <label class="filter-col" style="margin-right:0;" for="pref-orderby">Order by:</label>
+                <select id="pref-orderby" class="form-control">
+                    <option value="title_asc" <?= (isset($_GET['sort']) && $_GET['sort'] === 'asc') ? 'selected' : '' ?>>Movie title (ASC)</option>
+                    <option value="title_desc" <?= (isset($_GET['sort']) && $_GET['sort'] === 'desc') ? 'selected' : '' ?>>Movie title (DESC)</option>
+                </select>
+        </div>
             <div class="row">
                 <table class="table table-bordered">
                     <thead>
@@ -49,7 +36,7 @@
                     <tbody>
                     <?php if(!empty($data)): ?>
                         <?php foreach($data as $key => $movie): ?>
-                            <tr>
+                            <tr id="movie-<?= $movie['id'] ?>">
                                 <th scope="row"><?= $key + 1 ?></th>
                                 <td><?= $movie['title'] ?></td>
                                 <td><?= $movie['release_date'] ?></td>
@@ -60,7 +47,7 @@
                                         <button type="button" class="btn btn-primary">Show</button>
                                     </a>
                                 </td>
-                                <td><button type="button" class="btn btn-danger">Delete</button></td>
+                                <td><button type="button" data-id="<?= $movie['id'] ?>" class="btn btn-danger delete">Delete</button></td>
 
                             </tr>
                         <?php endforeach; ?>

@@ -8,8 +8,8 @@
         </div>
         <li><a href="/home/main">Home</a></li>
         <li><a href="/movies/list">All movies</a></li>
-        <li><a href="#events">Events</a></li>
-        <li><a href="#team">Team</a></li>
+        <li><a href="/movies/add">Add new movie</a></li>
+        <li><a href="/movies/upload">Upload new movies</a></li>
     </ul>
 </nav>
 <!-- /#sidebar-wrapper -->

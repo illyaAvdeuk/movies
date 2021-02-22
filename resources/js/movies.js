@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    var trigger = $('.hamburger'),
+    let trigger = $('.hamburger'),
         overlay = $('.overlay'),
         isClosed = false;
 
@@ -9,7 +9,7 @@ $(document).ready(function () {
 
     function hamburger_cross() {
 
-        if (isClosed == true) {
+        if (isClosed === true) {
             overlay.hide();
             trigger.removeClass('is-open');
             trigger.addClass('is-closed');
@@ -52,8 +52,73 @@ $(document).ready(function () {
         search_params.set('sort', params[1]);
 
         url.search = search_params.toString();
-        let  new_url = url.toString();
+        let new_url = url.toString();
         window.location.replace(new_url);
+    });
+
+    $(document).on('click', '.delete', function() {
+        $('#error-message').text('').hide();
+        let id = $(this).data('id');
+        $.ajax({
+            url: '/movies/delete',
+            type: 'POST',
+            data:{
+                id: id
+            },
+            success: function(data) {
+                console.log(data);
+                let result = JSON.parse(data);
+                console.log(result);
+                if (result.error) {
+                    $('#error-message').text(result.error).show();
+                }
+                if(result.success){
+                    $('#error-message').text('').hide();
+                    $('#movie-'+id).remove();
+                }
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+
+    });
+
+    /** add movie */
+    $('#add').submit(function(e) {
+        e.preventDefault();
+
+        $('#error-message').text('').hide();
+        let $form = $(this);
+
+        let $inputs = $form.find("input");
+
+        let serializedData = $form.serialize();
+
+        console.log(serializedData);
+        let request = $.ajax({
+            url: "/movies/save",
+            type: "post",
+            data: serializedData
+        });
+
+        request.done(function (response){
+            console.log(response);
+            let result = JSON.parse(response);
+            if (result.error) {
+                $('#error-message').text(result.error).show();
+            }
+        });
+
+        request.fail(function (jqXHR, textStatus, errorThrown){
+            console.error(
+                "The following error occurred: " + textStatus, errorThrown
+            );
+        });
+
+        request.always(function () {
+            $inputs.prop("disabled", false);
+        });
     });
 
 });

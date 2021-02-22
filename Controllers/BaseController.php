@@ -19,4 +19,24 @@ abstract class BaseController
         header("Location: {$url}");
         exit();
     }
+
+    /**
+     * @param string $status
+     * @param $response
+     * @return bool
+     */
+    public function setJSON(string $status, $response)
+    {
+        switch ($status) {
+            case 'success':
+                echo json_encode(['success' => true]);
+                return true;
+                break;
+            case 'error':
+            default:
+                echo json_encode(['error' => $response]);
+                return true;
+                break;
+        }
+    }
 }

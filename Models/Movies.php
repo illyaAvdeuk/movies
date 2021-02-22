@@ -1,6 +1,7 @@
 <?php
 namespace Models;
 
+use Exception;
 use PDO;
 
 /**
@@ -10,6 +11,54 @@ use PDO;
 class Movies extends BaseModel
 {
     /**
+     * @param $data
+     * @return bool|string
+     */
+    public function addMovie($data)
+    {
+        try {
+            $this->pdo->beginTransaction();
+
+            $sql = "INSERT INTO movies (title, release_date) VALUES (?, ?)";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$data['title'], $data['release_date']]);
+            $movieId = $this->pdo->lastInsertId();
+
+            if (isset($data['actors']) && !empty($data['actors'])) {
+                $actorsList = explode(',', $data['actors']);
+
+                foreach ($actorsList as $actor) {
+                    $actorN = new Actors();
+                    $actorN->addActor($actor, $movieId);
+                }
+
+
+
+//                $actors = new Actors();
+//                if (is_string($error = $actors->addActors($actorsList, $movieId))){
+//                    return $error;
+//                }
+
+            }
+
+//            if (isset($data['format'])) {
+//                $format = new Format();
+//                if (!$format->formatExists($data['format'])) {
+//                    $format->addFormat($data['format'], [$movieId]);
+//                }
+//            }
+
+            $this->pdo->commit();
+
+        } catch(Exception $e) {
+            $this->pdo->rollBack();
+            return $e->getMessage();
+        }
+        return true;
+    }
+
+    /**
+     * @param array $params
      * @return array
      */
     public function getMovies($params = []) : array
@@ -77,5 +126,25 @@ class Movies extends BaseModel
             return false;
         }
         return true;
+    }
+
+    /**
+     * @param string $title
+     * @param $release_date
+     * @return bool
+     */
+    public function movieExists(string $title, $release_date) : bool
+    {
+        $sql = 'SELECT id FROM movies WHERE title = :title AND release_date = :release_date';
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam(':title', $title, PDO::PARAM_STR);
+        $stmt->bindParam(':release_date', $release_date);
+        $stmt->execute();
+
+        if(is_array($stmt->fetch(PDO::FETCH_ASSOC))){
+            return true;
+        }
+        return false;
     }
 }

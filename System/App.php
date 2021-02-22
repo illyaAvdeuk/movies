@@ -17,24 +17,25 @@ class App
      */
     public static function run()
     {
-
-        // Получаем URL запроса
+        /** get result of request */
         $path = $_SERVER['REQUEST_URI'];
-        // получаем path без $_GET параметров
         $url_components = parse_url($path);
 
-        // Разбиваем URL на части
+        /** url components without $_GET params*/
         $pathParts = explode('/', $url_components['path']);
-        // Получаем имя контроллера
-        $controller = $pathParts[1];
-        // Получаем имя действия
-        $action = $pathParts[2];
-        // айди для action, если он нужен
-        $id = $pathParts[3];
 
-        // Формируем пространство имен для контроллера
+        $controller = $pathParts[1];
+        $action = $pathParts[2];
+
+        /** id for action **/
+        $id = '';
+        if (isset($pathParts[3])) {
+            $id = $pathParts[3];
+        }
+
+        /** controller namespace */
         $controller = 'Controllers\\' . $controller . 'Controller';
-        // Формируем наименование действия
+        /** name for action method */
         $action = 'action' . ucfirst($action);
 
         // Если класса не существует, выбрасывем исключение
