@@ -1,6 +1,8 @@
 <?php
 namespace Models;
 
+use Validators\AddMovieValidator;
+
 /**
  * Class Movies
  * @package Models
@@ -39,11 +41,16 @@ class Movies extends BaseModel
 
     /**
      * @param array $movies
+     * @return bool|string
      */
     public function addMovies(array $movies)
     {
+        $validator = new AddMovieValidator();
         if (!empty($movies)) {
             foreach($movies as $movie) {
+                if (is_string($error = $validator->validate($movie))) {
+                    return $error;
+                }
                 $this->addMovie($movie);
             }
         }

@@ -2,9 +2,9 @@
 namespace Controllers;
 
 use ErrorException;
-use Models\DocxConverter;
+use Models\ImportHelper;
 use Models\Movies;
-use PhpOffice\PhpWord\IOFactory;
+use PhpOffice\PhpWord\Exception\Exception;
 use System\View;
 use Validators\AddMovieValidator;
 
@@ -58,6 +58,9 @@ class moviesController extends BaseController
         }
     }
 
+    /**
+     * action for movies ajax delete
+     */
     public function actionDelete()
     {
         if (!isset($_POST['id'])) {
@@ -70,6 +73,8 @@ class moviesController extends BaseController
     }
 
     /**
+     * vies for adding single movies
+     *
      * @throws ErrorException
      */
     public function actionAdd()
@@ -89,77 +94,45 @@ class moviesController extends BaseController
         } else {
             if (is_string($error = $this->model->addMovie($_POST))) {
                 $this->setJSON('error', $error);
-            }
-            else {
-                $this->redirect301('/movies/list');
+            } else {
+                $this->setJSON('success', true);
             }
         }
     }
 
     /**
      * show view for uploads page
+     *
      * @throws ErrorException
      */
     public function actionUpload()
     {
-        $source = "/home/developer/Test/Controllers/tz.docx";
+        View::render('uploads');
+    }
 
-        $objReader = IOFactory::createReader('Word2007');
+    /**
+     * import movies from file
+     *
+     * @throws Exception
+     */
+    public function actionImport()
+    {
+        if ( 0 < $_FILES['file']['error'] ) {
+            $this->setJSON('error', $_FILES['file']['error']);
+        } else {
+            move_uploaded_file($_FILES['file']['tmp_name'], ROOT_DIR.'/temp/' . $_FILES['file']['name']);
 
-        $phpWord = $objReader->load($source);
-
-        $arrays = [];
-        $data = [];
-        foreach($phpWord->getSections() as $section) {
-            $arrays = $section->getElements();
-            $text = '';
-            foreach ($arrays as $e) {
-                if (get_class($e) === 'PhpOffice\PhpWord\Element\TextRun') {
-                    foreach ($e->getElements() as $text) {
-                        if (!empty($text->getText())) {
-                            $data[] = $text->getText();
-//                            $text .= $text->getText();
-                        }
-                    }
-                }
-            }
-
-            $text = implode(' ',$data);
-            $text = str_replace([' :',' ,','  '], [':',',',' '], $text);
-            $text = str_replace(['Title', 'Release  Year', 'Format', 'Stars'], ['|Title', ':Release Year', ':Format', ':Stars'], $text);
-
-
-            $data = array_filter(explode('|', $text));
-            foreach ($data as &$string) {
-                $string = array_filter(explode(':', $string));
-            }
-
-            $parsedMovies = [];
-            foreach ($data as $movieOrder => $movie) {
-                foreach ($movie as $index => $movieElement ) {
-                    if ($movieElement === 'Title') {
-                        $parsedMovies[$movieOrder]['title'] = htmlspecialchars_decode((trim($movie[$index+1])), ENT_QUOTES);
-                        unset($movie[$index+1]);
-                    } elseif ($movieElement === 'Release Year') {
-                        $parsedMovies[$movieOrder]['release_date'] = trim($movie[$index+1]);
-                        unset($movie[$index+1]);
-                    } elseif ($movieElement === 'Format') {
-                        $parsedMovies[$movieOrder]['format'] = trim($movie[$index+1]);
-                        unset($movie[$index+1]);
-                    } elseif ($movieElement === 'Stars') {
-                        $parsedMovies[$movieOrder]['actors'] = strip_tags(str_replace([', ', '  '],[',', ' '],trim($movie[$index+1])));
-                        unset($movie[$index+1]);
-                    }
-                }
-            }
+            $importHelper = new ImportHelper();
+            $parsedMovies = $importHelper->parse(ROOT_DIR.'/temp/' . $_FILES['file']['name']);
 
             if (!empty($parsedMovies)) {
-                $movies = new Movies();
-                $movies->addMovies($parsedMovies);
+                if (is_string($error = $this->model->addMovies($parsedMovies))) {
+                    $this->setJSON('error', $error);
+                } else {
+                    $this->setJSON('success', true);
+                }
             }
-
         }
-        View::render('uploads', ['text' => $parsedMovies]);
     }
 
 }

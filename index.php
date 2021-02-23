@@ -7,6 +7,8 @@ require_once __DIR__ . '/System/autoload.php';
 require_once __DIR__ . '/System/config.php';
 require_once __DIR__ . '/vendor/autoload.php';
 
+define('ROOT_DIR', __DIR__);
+
 try {
     App::run();
 } catch (ErrorException $e) {

@@ -18,7 +18,7 @@ class App
     public static function run()
     {
         /** get result of request */
-        $path = $_SERVER['REQUEST_URI'];
+        $path = strtolower($_SERVER['REQUEST_URI']);
         $url_components = parse_url($path);
 
         /** url components without $_GET params*/

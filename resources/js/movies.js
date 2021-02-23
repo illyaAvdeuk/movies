@@ -107,6 +107,8 @@ $(document).ready(function () {
             let result = JSON.parse(response);
             if (result.error) {
                 $('#error-message').text(result.error).show();
+            } else if(result.success) {
+                window.location.href = '/movies/list';
             }
         });
 
@@ -121,4 +123,28 @@ $(document).ready(function () {
         });
     });
 
+    /** import .docx*/
+    $('#upload').on('click', function() {
+        let file_data = $('#uploadDoc').prop('files')[0];
+        let form_data = new FormData();
+        form_data.append('file', file_data);
+        $.ajax({
+            url: '/movies/import',
+            dataType: 'text',
+            cache: false,
+            contentType: false,
+            processData: false,
+            data: form_data,
+            type: 'post',
+            success: function(response){
+                console.log(response);
+                let result = JSON.parse(response);
+                if (result.error) {
+                    $('#error-message').text(result.error).show();
+                } else if(result.success) {
+                    window.location.href = '/movies/list';
+                }
+            }
+        });
+    });
 });
