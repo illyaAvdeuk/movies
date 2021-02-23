@@ -51,6 +51,11 @@ class Movies extends BaseModel
                 if (is_string($error = $validator->validate($movie))) {
                     return $error;
                 }
+
+                if ($this->movieExists($movie['title'], $movie['release_date'])) {
+                    continue;
+                }
+
                 $this->addMovie($movie);
             }
         }

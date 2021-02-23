@@ -3,6 +3,7 @@
             <div class="alert alert-danger" role="alert" id="error-message" style="display: none">
                 <?= $errorMessage ?? '' ?>
             </div>
+        <div class="alert alert-info" role="alert" id="info-message" style="display: none"></div>
         <div class="form-group">
             <label class="filter-col" style="margin-right:0;" for="pref-search">Search:</label>
             <input

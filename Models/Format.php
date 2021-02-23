@@ -23,9 +23,9 @@ class Format extends BaseModel
 
     /**
      * @param string $title
-     * @return bool
+     * @return bool|string
      */
-    public function formatExists(string $title) : bool
+    public function formatExists(string $title)
     {
         $sql = 'SELECT id FROM standards WHERE title = :title';
 

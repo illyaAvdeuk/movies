@@ -75,6 +75,8 @@ $(document).ready(function () {
                 if(result.success){
                     $('#error-message').text('').hide();
                     $('#movie-'+id).remove();
+                    $('#info-message').text('Movie successfully deleted').show();
+                    setTimeout(function (){ $('#info-message').text('').hide(); }, 2000);
                 }
             },
             error: function (error) {

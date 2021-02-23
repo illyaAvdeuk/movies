@@ -21,6 +21,8 @@ abstract class BaseController
     }
 
     /**
+     * method for ajax responses
+     *
      * @param string $status
      * @param $response
      * @return bool

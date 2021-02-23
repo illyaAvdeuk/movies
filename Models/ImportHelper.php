@@ -49,10 +49,10 @@ class ImportHelper
         foreach ($data as $movieOrder => $movie) {
             foreach ($movie as $index => $movieElement) {
                 if ($movieElement === 'Title') {
-                    $parsedMovies[$movieOrder]['title'] = htmlspecialchars_decode((ltrim($movie[$index + 1], ': ')), ENT_QUOTES);
+                    $parsedMovies[$movieOrder]['title'] = $this->cleanString(($movie[$index + 1]));
                     unset($movie[$index + 1]);
                 } elseif ($movieElement === 'Release Year') {
-                    $parsedMovies[$movieOrder]['release_date'] = $this->cleanString(($movie[$index + 1]));
+                    $parsedMovies[$movieOrder]['release_date'] = (int)filter_var($movie[$index + 1], FILTER_SANITIZE_NUMBER_INT);
                     unset($movie[$index + 1]);
                 } elseif ($movieElement === 'Format') {
                     $parsedMovies[$movieOrder]['format'] = $this->cleanString(($movie[$index + 1]));
@@ -72,6 +72,9 @@ class ImportHelper
      */
     private function cleanString(string $string) : string
     {
-        return htmlspecialchars_decode((str_replace([', ', '  ', ': '],[',', ' ', ''],trim($string))), ENT_QUOTES);
+        $result = ltrim(htmlspecialchars_decode((str_replace([', ', '  ', ],[',', ' ', ],trim($string))), ENT_QUOTES),': ');
+
+        /** remove non-printable characters */
+        return preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $result);
     }
 }

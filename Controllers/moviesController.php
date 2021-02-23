@@ -92,6 +92,10 @@ class moviesController extends BaseController
         if (is_string($error = $validator->validate($_POST))) {
             $this->setJSON('error', $error);
         } else {
+            if ($this->model->movieExists($_POST['title'], $_POST['release_date'])) {
+                $this->setJSON('error', sprintf('%s already exists in database for year %s', $_POST['title'], $_POST['release_date']));
+            }
+
             if (is_string($error = $this->model->addMovie($_POST))) {
                 $this->setJSON('error', $error);
             } else {

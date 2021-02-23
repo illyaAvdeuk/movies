@@ -33,10 +33,6 @@ class AddMovieValidator extends Validator
             return $this->isRequired('Year');
         }
 
-        if ($this->model->movieExists($data['title'], $data['release_date'])) {
-            return sprintf('%s already exists in database for year %s', $data['title'], $data['release_date']);
-        }
-
         if (isset($data['actors']) && is_string($error = $this->checkString($data['actors'], 'Actors list'))) {
             return $error;
         }
