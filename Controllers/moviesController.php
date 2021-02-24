@@ -121,13 +121,18 @@ class moviesController extends BaseController
      */
     public function actionImport()
     {
+        if (!isset($_FILES['file'])) {
+            $this->setJSON('error', 'Add file first');
+        }
+
         if ( 0 < $_FILES['file']['error'] ) {
             $this->setJSON('error', $_FILES['file']['error']);
         } else {
-            move_uploaded_file($_FILES['file']['tmp_name'], ROOT_DIR.'/temp/' . $_FILES['file']['name']);
+            $path = ROOT_DIR.'/temp/' . $_FILES['file']['name'];
+            move_uploaded_file($_FILES['file']['tmp_name'], $path);
 
             $importHelper = new ImportHelper();
-            $parsedMovies = $importHelper->parse(ROOT_DIR.'/temp/' . $_FILES['file']['name']);
+            $parsedMovies = $importHelper->parse($path);
 
             if (!empty($parsedMovies)) {
                 if (is_string($error = $this->model->addMovies($parsedMovies))) {
@@ -136,6 +141,7 @@ class moviesController extends BaseController
                     $this->setJSON('success', true);
                 }
             }
+            unlink($path);
         }
     }
 

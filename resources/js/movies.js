@@ -149,4 +149,9 @@ $(document).ready(function () {
             }
         });
     });
+
+    $('.custom-file-input').on('change',function(e){
+        let fileName = document.getElementById("uploadDoc").files[0].name;
+        $('.custom-file-label').text(fileName);
+    })
 });
